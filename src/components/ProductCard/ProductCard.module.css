@@ -1,0 +1,227 @@
+.card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.15s, transform 0.15s;
+  position: relative;
+}
+
+.card:hover {
+  border-color: var(--accent-fg);
+  transform: translateY(-2px);
+}
+
+/* ── Position badge ───────────────────────── */
+.positionBadge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: var(--bg-canvas);
+  border: 1px solid var(--border-default);
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  padding: 2px 7px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  z-index: 1;
+}
+
+.pinTag,
+.slotTag {
+  font-size: 10px;
+}
+
+/* ── Image ────────────────────────────────── */
+.imageWrap {
+  width: 100%;
+  aspect-ratio: 1;
+  background: var(--bg-inset);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.imagePlaceholder {
+  font-size: 36px;
+  opacity: 0.2;
+}
+
+/* ── Body ─────────────────────────────────── */
+.body {
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.brand {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent-fg);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+
+.price {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--success-fg);
+}
+
+/* ── Variant row ──────────────────────────── */
+.variantRow {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 2px;
+}
+
+.colorDot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.15);
+  flex-shrink: 0;
+}
+
+.variantName {
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Meta IDs ─────────────────────────────── */
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--bg-inset);
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  padding: 2px 7px;
+}
+
+.metaLabel {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.metaValue {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: 'Fira Code', monospace;
+}
+
+/* ── Ranking ──────────────────────────────── */
+.rankingSection {
+  margin-top: 6px;
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 8px;
+}
+
+.rankingToggle {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s;
+}
+
+.rankingToggle:hover {
+  color: var(--text-primary);
+}
+
+.rankingGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 8px;
+}
+
+.rankingRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 3px 6px;
+  border-radius: 4px;
+  background: var(--bg-inset);
+}
+
+.rankingHighlight {
+  background: var(--accent-subtle);
+  border: 1px solid var(--accent-border);
+}
+
+.rankingLabel {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.rankingValue {
+  font-size: 11px;
+  font-family: 'Fira Code', monospace;
+  color: var(--text-primary);
+}
+
+.null {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.jsonBtn {
+  width: 100%;
+  margin-top: 8px;
+  padding: 6px 0;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-default);
+  border-radius: 6px;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.jsonBtn:hover {
+  background: var(--border-default);
+  color: var(--text-primary);
+  border-color: var(--text-muted);
+}

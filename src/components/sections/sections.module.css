@@ -1,0 +1,321 @@
+/* ── Grid layouts ─────────────────────────────────────────── */
+.grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 16px;
+}
+
+.grid3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0 16px;
+}
+
+/* ── Inputs ───────────────────────────────────────────────── */
+.input,
+.select,
+.textarea {
+  width: 100%;
+  background: var(--bg-inset);
+  border: 1px solid var(--border-default);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: 13px;
+  padding: 7px 10px;
+  outline: none;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.input:focus,
+.select:focus,
+.textarea:focus {
+  border-color: var(--accent-fg);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 56px;
+}
+
+.select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236e7681'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 28px;
+}
+
+.inputSm {
+  background: var(--bg-inset);
+  border: 1px solid var(--border-default);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: 12px;
+  padding: 5px 8px;
+  outline: none;
+  transition: border-color 0.15s;
+  min-width: 0;
+  flex: 1;
+}
+
+.inputSm:focus {
+  border-color: var(--accent-fg);
+}
+
+.selectSm {
+  background: var(--bg-inset);
+  border: 1px solid var(--border-default);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: 12px;
+  padding: 5px 8px;
+  outline: none;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.selectSm:focus {
+  border-color: var(--accent-fg);
+}
+
+/* ── Toggle ───────────────────────────────────────────────── */
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.toggle input[type='checkbox'] {
+  display: none;
+}
+
+.toggleSlider {
+  width: 36px;
+  height: 20px;
+  background: var(--toggle-bg);
+  border-radius: 20px;
+  position: relative;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.toggleSlider::after {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: 3px;
+  width: 14px;
+  height: 14px;
+  background: var(--text-muted);
+  border-radius: 50%;
+  transition: transform 0.2s, background 0.2s;
+}
+
+.toggle input:checked + .toggleSlider {
+  background: var(--toggle-active);
+}
+
+.toggle input:checked + .toggleSlider::after {
+  transform: translateX(16px);
+  background: #fff;
+}
+
+.toggleLabel {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.toggleActive {
+  color: var(--danger-fg);
+}
+
+/* ── List items ───────────────────────────────────────────── */
+.listItem {
+  background: var(--bg-inset);
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+}
+
+.listItemHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.listItemIndex {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent-fg);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ── Buttons ──────────────────────────────────────────────── */
+.addBtn {
+  background: transparent;
+  border: 1px dashed var(--border-default);
+  border-radius: 6px;
+  color: var(--accent-fg);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 7px 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+  width: 100%;
+  margin-top: 4px;
+}
+
+.addBtn:hover {
+  background: var(--accent-subtle);
+  border-color: var(--accent-fg);
+}
+
+.addBtnSm {
+  background: transparent;
+  border: 1px solid var(--border-default);
+  border-radius: 5px;
+  color: var(--accent-fg);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.addBtnSm:hover {
+  background: var(--accent-subtle);
+}
+
+.removeBtn {
+  background: transparent;
+  border: 1px solid var(--border-default);
+  border-radius: 5px;
+  color: var(--danger-fg);
+  font-size: 11px;
+  padding: 3px 7px;
+  cursor: pointer;
+  transition: all 0.15s;
+  line-height: 1;
+}
+
+.removeBtn:hover {
+  background: var(--danger-subtle);
+  border-color: var(--danger-fg);
+}
+
+/* ── Filter builder ───────────────────────────────────────── */
+.filterGroup {
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  background: var(--bg-inset);
+}
+
+.filterGroupHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.filterGroupLabel {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--warning-fg);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.filterGroupRules {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-left: 8px;
+  border-left: 2px solid var(--border-default);
+}
+
+.filterRule {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+
+.filterRule .inputSm {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ── AND / OR operator selector ───────────────────────────── */
+.operatorSelect {
+  appearance: none;
+  background: var(--accent-subtle);
+  border: 1px solid var(--accent-border);
+  border-radius: 5px;
+  color: var(--accent-fg);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 4px 10px;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.operatorSelect:focus {
+  outline: none;
+  border-color: var(--accent-fg);
+  background: var(--accent-border);
+}
+
+.operatorSelect:hover {
+  background: var(--accent-border);
+}
+
+/* ── Bypass grid ──────────────────────────────────────────── */
+.bypassGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 24px;
+}
+
+/* ── Sub sections ─────────────────────────────────────────── */
+.subSection {
+  margin-bottom: 20px;
+}
+
+.subSection:last-child {
+  margin-bottom: 0;
+}
+
+.subSectionTitle {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+/* ── Responsive ───────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .grid2,
+  .grid3,
+  .bypassGrid {
+    grid-template-columns: 1fr;
+  }
+}
