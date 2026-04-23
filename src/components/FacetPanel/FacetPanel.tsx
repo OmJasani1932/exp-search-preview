@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import type { FacetResult } from '../../types/searchResponse';
 import styles from './FacetPanel.module.css';
 
@@ -13,7 +13,7 @@ interface Props {
   selectedCount: number;
 }
 
-export const FacetPanel: React.FC<Props> = ({
+export const FacetPanel: React.FC<Props> = memo(({
   facets,
   isTermSelected,
   getRangeSelection,
@@ -45,7 +45,7 @@ export const FacetPanel: React.FC<Props> = ({
       />
     ))}
   </aside>
-);
+));
 
 /* ── Individual facet group ───────────────────────────── */
 interface GroupProps {
@@ -57,7 +57,7 @@ interface GroupProps {
   onClearRange: (field: string) => void;
 }
 
-const FacetGroup: React.FC<GroupProps> = ({
+const FacetGroup: React.FC<GroupProps> = memo(({
   facet,
   isTermSelected,
   getRangeSelection,
@@ -201,4 +201,4 @@ const FacetGroup: React.FC<GroupProps> = ({
       )}
     </div>
   );
-};
+});

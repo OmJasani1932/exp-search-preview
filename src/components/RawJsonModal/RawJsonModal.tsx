@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo, useCallback, memo } from 'react';
 import styles from './RawJsonModal.module.css';
 
 interface Props {
@@ -7,7 +7,7 @@ interface Props {
   data: unknown;
 }
 
-export const RawJsonModal: React.FC<Props> = ({ open, onClose, data }) => {
+export const RawJsonModal: React.FC<Props> = memo(({ open, onClose, data }) => {
   // Close on Escape key
   useEffect(() => {
     if (!open) return;
@@ -24,11 +24,14 @@ export const RawJsonModal: React.FC<Props> = ({ open, onClose, data }) => {
     return () => { document.body.style.overflow = ''; };
   }, [open]);
 
-  if (!open) return null;
+  // Memoize the stringified JSON — avoids re-stringifying on every render
+  const jsonString = useMemo(() => JSON.stringify(data, null, 2), [data]);
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(JSON.stringify(data, null, 2));
-  };
+  const handleCopy = useCallback(() => {
+    navigator.clipboard.writeText(jsonString);
+  }, [jsonString]);
+
+  if (!open) return null;
 
   return (
     <div className={styles.overlay} onClick={onClose}>
@@ -51,9 +54,9 @@ export const RawJsonModal: React.FC<Props> = ({ open, onClose, data }) => {
 
         {/* Body */}
         <div className={styles.body}>
-          <pre className={styles.pre}>{JSON.stringify(data, null, 2)}</pre>
+          <pre className={styles.pre}>{jsonString}</pre>
         </div>
       </div>
     </div>
   );
-};
+});

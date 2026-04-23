@@ -28,14 +28,6 @@ export const ApiConfigSection: React.FC<Props> = ({ config, updateConfig }) => (
         onChange={(e) => updateConfig('catalogId', e.target.value)}
       />
     </FormField>
-    <FormField label="X-Environment-Id">
-      <input
-        type="text"
-        className={styles.input}
-        value={config.environmentId}
-        onChange={(e) => updateConfig('environmentId', e.target.value)}
-      />
-    </FormField>
     <FormField label="X-Tenant-Id">
       <input
         type="text"
@@ -50,6 +42,14 @@ export const ApiConfigSection: React.FC<Props> = ({ config, updateConfig }) => (
         className={styles.input}
         value={config.workspaceId}
         onChange={(e) => updateConfig('workspaceId', e.target.value)}
+      />
+    </FormField>
+    <FormField label="X-Environment-Id">
+      <input
+        type="text"
+        className={styles.input}
+        value={config.environmentId}
+        onChange={(e) => updateConfig('environmentId', e.target.value)}
       />
     </FormField>
   </SectionCard>

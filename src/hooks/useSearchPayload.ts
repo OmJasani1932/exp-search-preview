@@ -25,7 +25,7 @@ function loadFromStorage(): SearchPayload {
 
 export function useSearchPayload() {
   const [payload, setPayload] = useState<SearchPayload>(loadFromStorage);
-  const [jsonText, setJsonText] = useState<string>(() => JSON.stringify(loadFromStorage(), null, 2));
+  const [jsonText, setJsonText] = useState<string>(() => JSON.stringify(payload, null, 2));
   const [jsonError, setJsonError] = useState<string | null>(null);
   const [resetKey, setResetKey] = useState(0);
 

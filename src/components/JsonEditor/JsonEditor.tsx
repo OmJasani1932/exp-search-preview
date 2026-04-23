@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, memo } from 'react';
 import styles from './JsonEditor.module.css';
 
 interface Props {
@@ -7,7 +7,7 @@ interface Props {
   onChange: (text: string) => void;
 }
 
-export const JsonEditor: React.FC<Props> = ({ jsonText, jsonError, onChange }) => {
+export const JsonEditor: React.FC<Props> = memo(({ jsonText, jsonError, onChange }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleFormat = () => {
@@ -56,4 +56,4 @@ export const JsonEditor: React.FC<Props> = ({ jsonText, jsonError, onChange }) =
       />
     </div>
   );
-};
+});

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import type { SearchPayload } from '../../types/searchPayload';
 import type { ApiConfig } from '../../types/apiConfig';
 import { FormEditor } from '../FormEditor/FormEditor';
@@ -22,7 +22,7 @@ interface Props {
   updateApiConfig: <K extends keyof ApiConfig>(key: K, value: ApiConfig[K]) => void;
 }
 
-export const ConfigDrawer: React.FC<Props> = ({
+export const ConfigDrawer: React.FC<Props> = memo(({
   open,
   onClose,
   onSave,
@@ -84,21 +84,23 @@ export const ConfigDrawer: React.FC<Props> = ({
           </button>
         </div>
 
-        {/* Content */}
+        {/* Content — only render children when drawer is open to avoid unnecessary work */}
         <div className={styles.drawerBody}>
-          {activeTab === 'form' ? (
-            <FormEditor
-              payload={payload}
-              update={update}
-              resetKey={resetKey}
-              apiConfig={apiConfig}
-              updateApiConfig={updateApiConfig}
-            />
-          ) : (
-            <JsonEditor jsonText={jsonText} jsonError={jsonError} onChange={onJsonChange} />
+          {open && (
+            activeTab === 'form' ? (
+              <FormEditor
+                payload={payload}
+                update={update}
+                resetKey={resetKey}
+                apiConfig={apiConfig}
+                updateApiConfig={updateApiConfig}
+              />
+            ) : (
+              <JsonEditor jsonText={jsonText} jsonError={jsonError} onChange={onJsonChange} />
+            )
           )}
         </div>
       </aside>
     </>
   );
-};
+});

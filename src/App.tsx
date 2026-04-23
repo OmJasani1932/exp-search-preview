@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { ConfigDrawer } from './components/ConfigDrawer/ConfigDrawer';
 import { FacetPanel } from './components/FacetPanel/FacetPanel';
 import { RawJsonModal } from './components/RawJsonModal/RawJsonModal';
@@ -8,9 +8,9 @@ import { useApiConfig } from './hooks/useApiConfig';
 import { ProductCard } from './components/ProductCard/ProductCard';
 import { executeSearch } from './services/searchApi';
 import type { SearchResponse } from './types/searchResponse';
+import type { Facet } from './types/searchPayload';
+import { isRangeSelection } from './types/facetSelection';
 import './App.css';
-
-const DEBOUNCE_MS = 500;
 
 function App() {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -36,10 +36,30 @@ function App() {
   // Sort controls (outside flyout, applied directly)
   const [sortBy, setSortBy] = useState('');
   const [sortOrder, setSortOrder] = useState<'ascending' | 'descending'>('ascending');
-  const sortDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Card display toggles (persisted)
+  const [globalShowRanking, setGlobalShowRanking] = useState(() => {
+    return localStorage.getItem('card_show_ranking') !== 'false';
+  });
+  const [globalShowFields, setGlobalShowFields] = useState(() => {
+    return localStorage.getItem('card_show_fields') === 'true';
+  });
+
+  const handleToggleRanking = useCallback(() => {
+    setGlobalShowRanking((v) => {
+      localStorage.setItem('card_show_ranking', String(!v));
+      return !v;
+    });
+  }, []);
+
+  const handleToggleFields = useCallback(() => {
+    setGlobalShowFields((v) => {
+      localStorage.setItem('card_show_fields', String(!v));
+      return !v;
+    });
+  }, []);
 
   const abortRef = useRef<AbortController | null>(null);
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const { payload, jsonText, jsonError, resetKey, updatePayload, updateFromJson, savePayload, resetToDefault } =
     useSearchPayload();
@@ -56,12 +76,22 @@ function App() {
     getRangeSelection,
   } = useSelectedFacets();
 
-  const records = response?.records ?? [];
-  const facets = response?.facets ?? [];
+  const records = useMemo(() => response?.records ?? [], [response]);
+  const facets = useMemo(() => response?.facets ?? [], [response]);
   const meta = response?.meta ?? null;
   const totalCount = meta?.total_count ?? 0;
   const limit = payload.limit || 20;
   const totalPages = Math.max(1, Math.ceil(totalCount / limit));
+
+  // Convert UI-selected facets into the Facet[] format the API expects
+  const selectedFacetsPayload: Facet[] = useMemo(() => {
+    return selected.map((sel) => {
+      if (isRangeSelection(sel)) {
+        return { field: sel.field, value: { min: sel.min, max: sel.max } };
+      }
+      return { field: sel.field, value: { value: sel.value } };
+    });
+  }, [selected]);
 
   const doSearch = useCallback(async (query: string, page = 1) => {
     if (!query.trim()) return;
@@ -76,8 +106,11 @@ function App() {
     // Override skip based on page
     const skip = (page - 1) * limit;
 
+    // Merge config facets with UI-selected facets
+    const mergedFacets = [...(payload.facets ?? []), ...selectedFacetsPayload];
+
     try {
-      const overriddenPayload = { ...payload, skip };
+      const overriddenPayload = { ...payload, skip, facets: mergedFacets };
       const result = await executeSearch(apiConfig, query, overriddenPayload, controller.signal);
       setResponse(result);
       setCurrentPage(page);
@@ -88,51 +121,50 @@ function App() {
     } finally {
       setLoading(false);
     }
-  }, [apiConfig, payload, limit]);
+  }, [apiConfig, payload, limit, selectedFacetsPayload]);
 
-  // Keep doSearch ref fresh for the debounce effect
+  // Keep doSearch ref fresh
   const doSearchRef = useRef(doSearch);
   doSearchRef.current = doSearch;
 
-  // Debounced search on query change
-  useEffect(() => {
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-
-    if (!searchQuery.trim()) {
-      setResponse(null);
-      setCurrentPage(1);
-      return;
-    }
-
-    debounceRef.current = setTimeout(() => {
-      setCurrentPage(1);
-      doSearchRef.current(searchQuery, 1);
-    }, DEBOUNCE_MS);
-
-    return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-    };
+  // Manual search trigger (button click or Enter key)
+  const handleSearch = useCallback(() => {
+    if (!searchQuery.trim()) return;
+    setCurrentPage(1);
+    doSearchRef.current(searchQuery, 1);
   }, [searchQuery]);
 
-  // Sort handlers — update payload directly and re-trigger search
+  // Clear search resets results
+  const handleClearSearch = useCallback(() => {
+    setSearchQuery('');
+    setResponse(null);
+    setCurrentPage(1);
+  }, []);
+
+  // Re-trigger search when facet selections change (skip initial mount)
+  const facetMountRef = useRef(true);
+  useEffect(() => {
+    if (facetMountRef.current) {
+      facetMountRef.current = false;
+      return;
+    }
+    if (!searchQuery.trim()) return;
+    setCurrentPage(1);
+    doSearchRef.current(searchQuery, 1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedFacetsPayload]);
+
+  // Sort handlers — update payload directly and re-trigger search immediately
   const handleSortByChange = useCallback((value: string) => {
     setSortBy(value);
     updatePayload('sort_by', value);
-    if (sortDebounceRef.current) clearTimeout(sortDebounceRef.current);
-    sortDebounceRef.current = setTimeout(() => {
-      if (searchQuery.trim()) {
-        setCurrentPage(1);
-        doSearchRef.current(searchQuery, 1);
-      }
-    }, DEBOUNCE_MS);
-  }, [searchQuery, updatePayload]);
+  }, [updatePayload]);
 
   const handleSortOrderChange = useCallback((value: 'ascending' | 'descending') => {
     setSortOrder(value);
     updatePayload('sort_order', value);
     if (searchQuery.trim()) {
       setCurrentPage(1);
-      // Small delay to let state commit
       setTimeout(() => doSearchRef.current(searchQuery, 1), 0);
     }
   }, [searchQuery, updatePayload]);
@@ -156,12 +188,35 @@ function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [doSearch, searchQuery]);
 
+  // Memoize pagination items to avoid recomputing on every render
+  const paginationItems = useMemo(() => {
+    if (totalPages <= 1) return [];
+    return Array.from({ length: totalPages }, (_, i) => i + 1)
+      .filter((p) => {
+        if (p === 1 || p === totalPages) return true;
+        return Math.abs(p - currentPage) <= 2;
+      })
+      .reduce<(number | 'ellipsis')[]>((acc, p, i, arr) => {
+        if (i > 0 && p - (arr[i - 1] as number) > 1) acc.push('ellipsis');
+        acc.push(p);
+        return acc;
+      }, []);
+  }, [totalPages, currentPage]);
+
+  // Stable callback refs for inline handlers to prevent child re-renders
+  const handleCloseDrawer = useCallback(() => setDrawerOpen(false), []);
+  const handleOpenDrawer = useCallback(() => setDrawerOpen(true), []);
+  const handleToggleRaw = useCallback(() => setRawOpen((v) => !v), []);
+  const handleCloseRaw = useCallback(() => setRawOpen(false), []);
+  const handleDismissError = useCallback(() => setError(null), []);
+  const handleToggleDarkMode = useCallback(() => setDarkMode((v) => !v), []);
+
   return (
     <div className="spa">
       {/* ── Config Drawer ── */}
       <ConfigDrawer
         open={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
+        onClose={handleCloseDrawer}
         onSave={handleSaveConfig}
         payload={payload}
         update={updatePayload}
@@ -179,7 +234,7 @@ function App() {
         <div className="spaHeaderLeft">
           <button
             className="themeToggle"
-            onClick={() => setDarkMode((v) => !v)}
+            onClick={handleToggleDarkMode}
             title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
           >
             {darkMode ? '☀️' : '🌙'}
@@ -195,31 +250,41 @@ function App() {
               placeholder="Search products…"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') handleSearch(); }}
               autoFocus
             />
             {searchQuery && (
               <button
                 type="button"
                 className="searchClear"
-                onClick={() => setSearchQuery('')}
+                onClick={handleClearSearch}
                 title="Clear"
               >
                 ✕
               </button>
             )}
+            <button
+              type="button"
+              className="searchBtn"
+              onClick={handleSearch}
+              disabled={!searchQuery.trim() || loading}
+              title="Search"
+            >
+              Search
+            </button>
             {loading && <span className="searchSpinner">⏳</span>}
           </div>
         </div>
 
         <div className="spaHeaderRight">
           {response && (
-            <button className="rawBtn" onClick={() => setRawOpen((v) => !v)}>
+            <button className="rawBtn" onClick={handleToggleRaw}>
               {'{ } Raw JSON'}
             </button>
           )}
           <button
             className="editConfigBtn"
-            onClick={() => setDrawerOpen(true)}
+            onClick={handleOpenDrawer}
             title="Open search configuration"
           >
             <span className="editConfigIcon">⚙️</span>
@@ -229,14 +294,14 @@ function App() {
       </header>
 
       {/* ── Raw JSON Modal ── */}
-      <RawJsonModal open={rawOpen} onClose={() => setRawOpen(false)} data={response} />
+      <RawJsonModal open={rawOpen} onClose={handleCloseRaw} data={response} />
 
       {/* ── Error banner ── */}
       {error && (
         <div className="errorBanner">
           <span>❌</span>
           <span className="errorText">{error}</span>
-          <button className="errorDismiss" onClick={() => setError(null)}>✕</button>
+          <button className="errorDismiss" onClick={handleDismissError}>✕</button>
         </div>
       )}
 
@@ -314,8 +379,28 @@ function App() {
               </tbody>
             </table>
 
-            {/* Sort controls */}
+            {/* Sort + Display controls */}
             <div className="sortControls">
+              <div className="displayToggles">
+                <label className="displayToggle">
+                  <input
+                    type="checkbox"
+                    checked={globalShowRanking}
+                    onChange={handleToggleRanking}
+                  />
+                  <span className="displayToggleSlider" />
+                  <span className="displayToggleLabel">Show Ranking</span>
+                </label>
+                <label className="displayToggle">
+                  <input
+                    type="checkbox"
+                    checked={globalShowFields}
+                    onChange={handleToggleFields}
+                  />
+                  <span className="displayToggleSlider" />
+                  <span className="displayToggleLabel">Show Fields</span>
+                </label>
+              </div>
               <label className="sortLabel">
                 Sort By
                 <input
@@ -365,7 +450,12 @@ function App() {
                 <>
                   <div className="productGrid">
                     {records.map((record) => (
-                      <ProductCard key={record.id} record={record} />
+                      <ProductCard
+                        key={record.id}
+                        record={record}
+                        showRankingGlobal={globalShowRanking}
+                        showFieldsGlobal={globalShowFields}
+                      />
                     ))}
                   </div>
 
@@ -380,18 +470,7 @@ function App() {
                         ← Prev
                       </button>
 
-                      {Array.from({ length: totalPages }, (_, i) => i + 1)
-                        .filter((p) => {
-                          // Show first, last, and pages near current
-                          if (p === 1 || p === totalPages) return true;
-                          return Math.abs(p - currentPage) <= 2;
-                        })
-                        .reduce<(number | 'ellipsis')[]>((acc, p, i, arr) => {
-                          if (i > 0 && p - (arr[i - 1] as number) > 1) acc.push('ellipsis');
-                          acc.push(p);
-                          return acc;
-                        }, [])
-                        .map((item, i) =>
+                      {paginationItems.map((item, i) =>
                           item === 'ellipsis' ? (
                             <span key={`e${i}`} className="pageEllipsis">…</span>
                           ) : (

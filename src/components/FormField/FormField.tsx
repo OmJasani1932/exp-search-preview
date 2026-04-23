@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import styles from './FormField.module.css';
 
 interface Props {
@@ -7,7 +7,7 @@ interface Props {
   children: React.ReactNode;
 }
 
-export const FormField: React.FC<Props> = ({ label, hint, children }) => (
+export const FormField: React.FC<Props> = memo(({ label, hint, children }) => (
   <div className={styles.field}>
     <label className={styles.label}>
       {label}
@@ -15,4 +15,4 @@ export const FormField: React.FC<Props> = ({ label, hint, children }) => (
     </label>
     <div className={styles.control}>{children}</div>
   </div>
-);
+));

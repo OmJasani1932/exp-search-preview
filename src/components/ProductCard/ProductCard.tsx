@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { createPortal } from 'react-dom';
 import type { ProductRecord } from '../../types/searchResponse';
 import { RawJsonModal } from '../RawJsonModal/RawJsonModal';
@@ -6,6 +6,8 @@ import styles from './ProductCard.module.css';
 
 interface Props {
   record: ProductRecord;
+  showRankingGlobal: boolean;
+  showFieldsGlobal: boolean;
 }
 
 const COLOR_MAP: Record<string, string> = {
@@ -20,8 +22,9 @@ const COLOR_MAP: Record<string, string> = {
   Orange: '#e08852',
 };
 
-export const ProductCard: React.FC<Props> = ({ record }) => {
-  const [showRanking, setShowRanking] = useState(false);
+export const ProductCard: React.FC<Props> = memo(({ record, showRankingGlobal, showFieldsGlobal }) => {
+  const [rankingOpen, setRankingOpen] = useState(true);
+  const [fieldsOpen, setFieldsOpen] = useState(true);
   const [showJson, setShowJson] = useState(false);
 
   const variant = record.selected_variant;
@@ -86,16 +89,16 @@ export const ProductCard: React.FC<Props> = ({ record }) => {
           )}
         </div>
 
-        {/* Ranking toggle */}
-        {ranking && (
+        {/* Ranking accordion (controlled by global toggle) */}
+        {showRankingGlobal && ranking && (
           <div className={styles.rankingSection}>
             <button
               className={styles.rankingToggle}
-              onClick={() => setShowRanking((v) => !v)}
+              onClick={() => setRankingOpen((v) => !v)}
             >
-              {showRanking ? '▲' : '▼'} Ranking Info
+              {rankingOpen ? '▲' : '▼'} Ranking Info
             </button>
-            {showRanking && (
+            {rankingOpen && (
               <div className={styles.rankingGrid}>
                 <RankingRow label="Overall" value={ranking.overall_score} highlight />
                 <RankingRow label="Merchandising" value={ranking.merchandising_score} />
@@ -106,6 +109,35 @@ export const ProductCard: React.FC<Props> = ({ record }) => {
             )}
           </div>
         )}
+
+        {/* Fields accordion (controlled by global toggle) */}
+        {showFieldsGlobal && (
+          <div className={styles.rankingSection}>
+            <button
+              className={styles.rankingToggle}
+              onClick={() => setFieldsOpen((v) => !v)}
+            >
+              {fieldsOpen ? '▲' : '▼'} Fields
+            </button>
+            {fieldsOpen && (
+              <div className={styles.fieldsGrid}>
+                {Object.entries(record)
+                  .filter(([key]) => key !== 'selected_variant' && key !== 'ranking_info')
+                  .map(([key, val]) => (
+                    <div key={key} className={styles.fieldRow}>
+                      <span className={styles.fieldKey}>{key}</span>
+                      <span className={styles.fieldVal}>
+                        {val == null ? <span className={styles.null}>null</span>
+                          : typeof val === 'object' ? JSON.stringify(val)
+                          : String(val)}
+                      </span>
+                    </div>
+                  ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Show Product JSON */}
         <button
           className={styles.jsonBtn}
@@ -115,15 +147,15 @@ export const ProductCard: React.FC<Props> = ({ record }) => {
         </button>
       </div>
 
-      {createPortal(
+      {showJson && createPortal(
         <RawJsonModal open={showJson} onClose={() => setShowJson(false)} data={record} />,
         document.body
       )}
     </div>
   );
-};
+});
 
-const RankingRow: React.FC<{ label: string; value: number | null; highlight?: boolean }> = ({
+const RankingRow: React.FC<{ label: string; value: number | null; highlight?: boolean }> = memo(({
   label,
   value,
   highlight,
@@ -134,4 +166,4 @@ const RankingRow: React.FC<{ label: string; value: number | null; highlight?: bo
       {value == null ? <span className={styles.null}>null</span> : value.toFixed(5)}
     </span>
   </div>
-);
+));

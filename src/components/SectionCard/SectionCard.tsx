@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import styles from './SectionCard.module.css';
 
 interface Props {
@@ -7,7 +7,7 @@ interface Props {
   children: React.ReactNode;
 }
 
-export const SectionCard: React.FC<Props> = ({ title, icon, children }) => (
+export const SectionCard: React.FC<Props> = memo(({ title, icon, children }) => (
   <div className={styles.card}>
     <div className={styles.header}>
       {icon && <span className={styles.icon}>{icon}</span>}
@@ -15,4 +15,4 @@ export const SectionCard: React.FC<Props> = ({ title, icon, children }) => (
     </div>
     <div className={styles.body}>{children}</div>
   </div>
-);
+));

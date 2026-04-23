@@ -141,6 +141,30 @@
   color: var(--text-primary);
 }
 
+/* ── Search button ────────────────────────────────── */
+.searchBtn {
+  background: var(--accent-fg);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: opacity 0.15s;
+  white-space: nowrap;
+}
+
+.searchBtn:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.searchBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* ── Search spinner ───────────────────────────────── */
 .searchSpinner {
   width: 18px;
@@ -275,10 +299,12 @@
 /* ── Meta + Sort row ─────────────────────────────── */
 .metaSortRow {
   display: flex;
+  flex-direction: row;
   align-items: flex-start;
-  justify-content: space-between;
-  gap: 20px;
+  justify-content: center;
+  gap: 24px;
   margin-bottom: 14px;
+  position: relative;
 }
 
 /* ── Meta details table ──────────────────────────── */
@@ -291,7 +317,7 @@
   overflow: hidden;
   font-size: 13px;
   line-height: 1.5;
-  flex: 0 1 auto;
+  width: auto;
   max-width: 720px;
 }
 
@@ -338,6 +364,66 @@
   gap: 12px;
   align-items: flex-end;
   flex-shrink: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+/* ── Display toggles ─────────────────────────────── */
+.displayToggles {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.displayToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.displayToggle input[type='checkbox'] {
+  display: none;
+}
+
+.displayToggleSlider {
+  width: 36px;
+  height: 20px;
+  background: var(--toggle-bg);
+  border-radius: 20px;
+  position: relative;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.displayToggleSlider::after {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: 3px;
+  width: 14px;
+  height: 14px;
+  background: var(--text-muted);
+  border-radius: 50%;
+  transition: transform 0.2s, background 0.2s;
+}
+
+.displayToggle input:checked + .displayToggleSlider {
+  background: var(--toggle-active);
+}
+
+.displayToggle input:checked + .displayToggleSlider::after {
+  transform: translateX(16px);
+  background: #fff;
+}
+
+.displayToggleLabel {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .sortLabel {
